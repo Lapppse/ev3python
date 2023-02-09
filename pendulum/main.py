@@ -8,6 +8,7 @@ from pybricks.tools import wait, StopWatch
 REPEATS = 10
 BIG_ZEROES = range(-12, 12)
 SMALL_ZEROES = range(-8, 8)
+length = 0.1
 
 timer = StopWatch()
 timer.pause()
@@ -42,6 +43,11 @@ def main() -> None:
     
     timer.pause()
     update_screen(10)
+    result = 4 * (pi ** 2) * (length * ((REPEATS / 2) ** 2) / (timer.time() ** 2))
+    brick.screen.draw_text(
+        0, 25,
+        "accel = {0:.2f}".format()
+    )
     """
     i = 0
     while eyes.angle() < -85:
