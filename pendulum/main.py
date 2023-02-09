@@ -5,62 +5,83 @@ from pybricks.parameters import Port, Stop, Button, Color
 from pybricks.tools import wait, StopWatch
 
 
-REPEATS = 10
+REPEATS = 10 * 2
 BIG_ZEROES = range(-12, 12)
 SMALL_ZEROES = range(-8, 8)
-length = 0.1
 
+pi = 3.141593
 timer = StopWatch()
 timer.pause()
 brick = EV3Brick()
-eyes = ColorSensor(Port.S1)
-#eyes.reset_angle(-90)
+eyes = ColorSensor(Port.S4)
+lengths = (0.5, 1.0)
+
+
+def display_length(length: float) -> None:
+    brick.screen.clear()
+    brick.screen.draw_text(
+        0, 25,
+        "length = {0}cm".format(length)
+    )
+    brick.screen.draw_text(
+        0, 50,
+        "press RIGHT button"
+    )
+    brick.screen.draw_text(
+        0, 65,
+        "to select length"
+    )
+
+def get_length() -> float:
+    i = 0
+    pressed = False
+    display_length(lengths[i])
+    while Button.CENTER not in brick.buttons.pressed():
+        if Button.RIGHT in brick.buttons.pressed():
+            if not pressed:
+                pressed = True
+                i  = (i + 1) % len(lengths)
+                display_length(lengths[i])
+        else:
+            pressed = False
+
+    return lengths[i]
 
 def update_screen(i: int):
     brick.screen.clear()
     brick.screen.draw_text(
-        10, 10,
+        0, 10,
         "time: {time:.2f} seconds".format(time=timer.time() / 1000)
     )
     brick.screen.draw_text(
-        10, 25,
+        0, 25,
         "strokes #{0}".format(i)# // 2)
     )
-    #brick.screen.draw_text(10, 50, eyes.color())
-
+    wait(100)
 
 def main() -> None:
-    i = 0
-    while i < REPEATS:
-        update_screen(i)
-        wait(150)
-        
-        if eyes.color() is not None:
-            timer.resume()            
-            i += 1
-            update_screen(i)
-            wait(50 + 25 * (i + 1))
+    length = get_length()
     
-    timer.pause()
-    update_screen(10)
-    result = 4 * (pi ** 2) * (length * ((REPEATS / 2) ** 2) / (timer.time() ** 2))
-    brick.screen.draw_text(
-        0, 25,
-        "accel = {0:.2f}".format()
-    )
-    """
     i = 0
-    while eyes.angle() < -85:
-        update_screen(0)
-    timer.reset()
-    timer.resume()
+    seen = False
     while i < REPEATS:
-        if i < 5 and eyes.angle() in BIG_ZEROES:
-            i += 1
-        elif i >= 5 and eyes.angle() in SMALL_ZEROES:
-            i += 1
         update_screen(i)
-    """
+        if eyes.color() is None:
+            seen = False
+        elif not seen:
+            seen = True
+            timer.resume()
+            i += 1
+    timer.pause()
+    update_screen(i)
+    
+    result = (4 * (pi ** 2)) * ((length * (REPEATS ** 2)) / ((timer.time() / 1000) ** 2))
+    print(result)
+    
+    brick.screen.draw_text(
+        0, 50,
+        "accel = {0:.2f}".format(result)
+    )
 
 
 if __name__ == "__main__":
