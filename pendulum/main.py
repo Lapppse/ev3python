@@ -13,7 +13,6 @@ pi = 3.141593
 timer = StopWatch()
 timer.pause()
 brick = EV3Brick()
-eyes = ColorSensor(Port.S4)
 lengths = (0.5, 1.0)
 
 
@@ -61,6 +60,10 @@ def update_screen(i: int):
 
 def main() -> None:
     length = get_length()
+    if length == 0.5:
+        eyes = ColorSensor(Port.S3)
+    else:
+        eyes = ColorSensor(Ports.S4)
     
     i = 0
     seen = False
