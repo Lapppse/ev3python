@@ -75,7 +75,7 @@ def main() -> None:
     timer.pause()
     update_screen(i)
 
-    result = (4 * (pi ** 2)) * ((length * (REPEATS // 2 ** 2)) / ((timer.time() / 1000) ** 2))
+    result = (4 * (pi ** 2)) * ((length * (REPEATS ** 2)) / ((timer.time() / 1000) ** 2))
 
     brick.screen.draw_text(
         0, 50,
