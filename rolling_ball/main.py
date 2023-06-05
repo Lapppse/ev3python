@@ -1,7 +1,7 @@
 #!/usr/bin/env pybricks-micropython
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor
-from pybricks.parameters import Port, Stop, Button
+from pybricks.parameters import Port, Button
 from pybricks.tools import StopWatch
 
 REPEATS = 5
@@ -11,16 +11,9 @@ timer = StopWatch()
 timer.pause()
 results = []
 brick = EV3Brick()
-#eyes = UltrasonicSensor(Port.S)
 motor = Motor(Port.C)
 cage_button = TouchSensor(Port.S1)
 bottom_button = TouchSensor(Port.S2)
-
-
-def display_platform_length() -> int:
-    pass
-    #platform_length: str = "Platform length = " + str(eyes.distance())
-    #brick.screen.draw_text(5, 5, platform_length)
 
 
 def wait_until_pressed(button: Button) -> None:
@@ -66,8 +59,6 @@ def update_screen() -> None:
     display_results()
 
 def main() -> None:
-    display_platform_length()
-
     wait_until_unpressed(cage_button)
     start_timer()
     wait_until_pressed(bottom_button)

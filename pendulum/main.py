@@ -5,7 +5,8 @@ from pybricks.parameters import Port, Button
 from pybricks.tools import wait, StopWatch
 
 
-REPEATS = 10 * 2
+REPEATS = 10
+HALF_REPEATS = REPEATS * 2
 BIG_ZEROES = range(-12, 12)
 SMALL_ZEROES = range(-8, 8)
 
@@ -54,7 +55,7 @@ def update_screen(i: int):
     )
     brick.screen.draw_text(
         0, 25,
-        "strokes #{0}".format(i)# // 2)
+        "strokes #{0}".format(i // 2)
     )
     wait(100)
 
@@ -63,7 +64,7 @@ def main() -> None:
     eyes = ColorSensor(Port.S3) if length == 0.5 else ColorSensor(Port.S4)
     i = 0
     seen = False
-    while i < REPEATS:
+    while i < HALF_REPEATS:
         update_screen(i)
         if eyes.color() is None:
             seen = False
@@ -74,8 +75,7 @@ def main() -> None:
     timer.pause()
     update_screen(i)
 
-    result = (4 * (pi ** 2)) * ((length * (REPEATS ** 2)) / ((timer.time() / 1000) ** 2))
-    print(result)
+    result = (4 * (pi ** 2)) * ((length * (REPEATS // 2 ** 2)) / ((timer.time() / 1000) ** 2))
 
     brick.screen.draw_text(
         0, 50,
