@@ -1,7 +1,7 @@
 #!/usr/bin/env pybricks-micropython
 from pybricks.hubs import EV3Brick
-from pybricks.ev3devices import Motor, TouchSensor, ColorSensor
-from pybricks.parameters import Port, Stop, Button, Color
+from pybricks.ev3devices import ColorSensor
+from pybricks.parameters import Port, Button
 from pybricks.tools import wait, StopWatch
 
 
@@ -60,11 +60,7 @@ def update_screen(i: int):
 
 def main() -> None:
     length = get_length()
-    if length == 0.5:
-        eyes = ColorSensor(Port.S3)
-    else:
-        eyes = ColorSensor(Ports.S4)
-    
+    eyes = ColorSensor(Port.S3) if length == 0.5 else ColorSensor(Port.S4)
     i = 0
     seen = False
     while i < REPEATS:
@@ -77,10 +73,10 @@ def main() -> None:
             i += 1
     timer.pause()
     update_screen(i)
-    
+
     result = (4 * (pi ** 2)) * ((length * (REPEATS ** 2)) / ((timer.time() / 1000) ** 2))
     print(result)
-    
+
     brick.screen.draw_text(
         0, 50,
         "accel = {0:.2f}".format(result)
