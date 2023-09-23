@@ -4,9 +4,8 @@ from pybricks.ev3devices import ColorSensor
 from pybricks.parameters import Port, Button
 from pybricks.tools import wait, StopWatch
 
-
-REPEATS = 10
-HALF_REPEATS = REPEATS * 2
+REPEATS: int = 10
+HALF_REPEATS: int = REPEATS * 2
 BIG_ZEROES = range(-12, 12)
 SMALL_ZEROES = range(-8, 8)
 
@@ -14,44 +13,76 @@ pi = 3.141593
 timer = StopWatch()
 timer.pause()
 brick = EV3Brick()
-lengths = (0.5, 1.0)
+screen = brick.screen
 
+low = 20
+high = 100
+len_range = list(range(low, high + 1))
 
-def display_length(length: float) -> None:
-    brick.screen.clear()
-    brick.screen.draw_text(
-        0, 25,
-        "length = {0}cm".format(length)
+queue = []
+queue_len = 2
+
+def add_to_queue(element):
+    queue.insert(element)
+    if len(queue) > queue_len:
+        queue = queue[:-1]
+
+def get_length_update_screen(i: int) -> None:
+    screen.clear()
+    screen.draw_text(
+        10, 40,
+        "{num} cm".format(num=len_range[i - 1])
     )
-    brick.screen.draw_text(
-        0, 50,
-        "press RIGHT button"
+    screen.draw_text(
+        10, 25,
+        "> {num} cm".format(num=len_range[i])
     )
-    brick.screen.draw_text(
-        0, 65,
-        "to select length"
+    screen.draw_text(
+        10, 10,
+        "{num} cm".format(num=len_range[i + 1])
     )
+    wait(50)
+
+def get_length_buttons_wait(button: Button, last_pressed: Button, counter: int):
+    if last_pressed == button:
+        if counter > 5:
+            wait(100)
+        else:
+            wait(200)
+            counter += 1
+    else:
+        last_pressed = button
+        counter = 1
+        wait(200)
+    
+    return last_pressed, counter
 
 def get_length() -> float:
-    i = 0
-    pressed = False
-    display_length(lengths[i])
-    while Button.CENTER not in brick.buttons.pressed():
-        if Button.RIGHT in brick.buttons.pressed():
-            if not pressed:
-                pressed = True
-                i  = (i + 1) % len(lengths)
-                display_length(lengths[i])
-        else:
-            pressed = False
+    i = (high - low) // 2
+    last_pressed = None
+    counter = 0
+    get_length_update_screen(i)
+    while True:
+        buttons = brick.buttons.pressed()
+        if Button.CENTER in buttons:
+            return len_range[i]
+        if Button.UP in buttons and i + 1 < high:
+            i += 1
+            get_length_update_screen(i)
+            last_pressed, counter = get_length_buttons_wait(Button.UP, last_pressed, counter)
+        if Button.DOWN in buttons and i - 1 > low:
+            i -= 1
+            get_length_update_screen(i)
+            last_pressed, counter = get_length_buttons_wait(Button.DOWN, last_pressed, counter)
 
-    return lengths[i]
+        if not buttons:
+            counter = 0
 
 def update_screen(i: int):
     brick.screen.clear()
     brick.screen.draw_text(
         0, 10,
-        "time: {time:.2f} seconds".format(time=timer.time() / 1000)
+        "time: {time:.2f} s".format(time=timer.time() / 1000)
     )
     brick.screen.draw_text(
         0, 25,
@@ -60,18 +91,17 @@ def update_screen(i: int):
     wait(100)
 
 def main() -> None:
-    length = get_length()
-    eyes = ColorSensor(Port.S3) if length == 0.5 else ColorSensor(Port.S4)
     i = 0
-    seen = False
+    length = get_length()
+    eyes = ColorSensor(Port.S4)
     while i < HALF_REPEATS:
         update_screen(i)
-        if eyes.color() is None:
-            seen = False
-        elif not seen:
-            seen = True
+        color = eyes.color()
+        add_to_queue(color)
+        if queue[1] is not None and queue[0] is None:
             timer.resume()
             i += 1
+
     timer.pause()
     update_screen(i)
 
