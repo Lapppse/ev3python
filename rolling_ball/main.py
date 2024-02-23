@@ -5,13 +5,12 @@ from pybricks.parameters import Port, Button
 from pybricks.tools import StopWatch
 
 REPEATS = 5
-LENGTH = 0.325
+LENGTH = 0.38
 
 timer = StopWatch()
 timer.pause()
 results = []
 brick = EV3Brick()
-motor = Motor(Port.C)
 cage_button = TouchSensor(Port.S1)
 bottom_button = TouchSensor(Port.S2)
 
